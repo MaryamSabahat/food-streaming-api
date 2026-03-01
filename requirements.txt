@@ -1,6 +1,5 @@
-# Use a simple, fast-to-install alternative first to verify everything works
 fastapi==0.104.1
 uvicorn==0.24.0
 python-multipart==0.0.6
-# Temporarily comment out pandas to test
-# pandas==2.0.3
+pandas==2.0.3
+boto3
