@@ -1,10 +1,6 @@
-numpy
-pandas
-Requests==2.31.0
-urllib3==1.26.6
-fastapi==0.85.1
-mangum==0.16.0
-pydantic==1.10.2
-uvicorn==0.19.0
-starlette==0.20.4
-boto3
+# Use a simple, fast-to-install alternative first to verify everything works
+fastapi==0.104.1
+uvicorn==0.24.0
+python-multipart==0.0.6
+# Temporarily comment out pandas to test
+# pandas==2.0.3
