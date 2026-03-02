@@ -7,7 +7,7 @@ app = FastAPI()
 def fetch_data(year: int = None, country: str = None, market: str = None):
     try:
         # Note: pandas requires 's3fs' or 'fsspec' to read directly from S3 URLs
-        df = pd.read_csv("https://food-data-test.s3.us-east-2.amazonaws.com/total_data.csv")
+        df = pd.read_csv(https://s3-food-data-test.s3.us-east-1.amazonaws.com/total_data.csv)
 
         # Apply filters based on provided parameters 
         if year is not None:
