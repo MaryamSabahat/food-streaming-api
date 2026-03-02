@@ -1,57 +1,46 @@
 from fastapi import FastAPI, Query, HTTPException
 import pandas as pd
-import boto3
-from io import StringIO
 import uvicorn
-
 
 app = FastAPI()
 
 def fetch_data(year: int = None, country: str = None, market: str = None):
     try:
-        # Load CSV content into a pandas DataFrame
-        df = pd.read_csv("https://s3-food-data-test.s3.us-east-1.amazonaws.com/total_data.csv")
+        # Note: pandas requires 's3fs' or 'fsspec' to read directly from S3 URLs
+        df = pd.read_csv("https://food-data-test.s3.us-east-2.amazonaws.com/total_data.csv")
 
-        print(df.shape[0])
-        # Apply filters based on provided parameters
+        # Apply filters based on provided parameters 
         if year is not None:
-            print("1")
             df = df[df['year'] == year]
         if country is not None:
-            print("2")
             df = df[df['country'] == country]
         if market is not None:
-            print("3")
             df = df[df['mkt_name'] == market]
 
-        # Fill NaN values with empty strings
+        # Fill NaN values with empty strings 
         df_filter = df.fillna('')
-
-        print(df_filter.shape[0])
         
-        # Convert filtered DataFrame to JSON
-        if df_filter is None or df_filter.empty:
+        if df_filter.empty:
             raise ValueError('No data found for the specified filters.')
-        else:
-            filtered_json = df_filter.to_json(orient='records')
-            return filtered_json
+        
+        # Convert filtered DataFrame to JSON 
+        return df_filter.to_dict(orient='records')
 
     except Exception as e:
-        return {'error': str(e)}
+        # Re-raise to be caught by the FastAPI endpoint 
+        raise e
 
 @app.get('/fetch_data')
 async def fetch_data_api(year: int = Query(None), country: str = Query(None), market: str = Query(None)):
     try:
-        # Call fetch_data function with provided parameters
         filtered_data = fetch_data(year, country, market)
-
-        if filtered_data is None:
-            raise ValueError('No data found for the specified filters.')
-        else:
-            # Return filtered data as API response
-            return filtered_data
+        return filtered_data
+    except ValueError as ve:
+        # Use HTTPException for proper FastAPI error responses 
+        raise HTTPException(status_code=404, detail=str(ve))
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
 if __name__ == '__main__':
+    # App Runner overrides these, but keeping for local testing 
     uvicorn.run(app, port=8080, host='0.0.0.0')
